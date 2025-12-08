@@ -1,0 +1,93 @@
+# Raw sequencing data (large FASTQ files)
+sra_downloads/
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.sra
+
+# Reference genome files (large, can be re-downloaded)
+genome/
+*.fa
+*.fasta
+*.fai
+
+# Annotation files (large GTF files)
+annotations/*.gtf
+
+# Alignment outputs (large BAM/SAM files)
+aligned_bams/
+starsolo_aligned/
+*.bam
+*.bam.bai
+*.sam
+
+# scTE outputs (count matrices - can be large)
+scTE_output/
+analysis/
+
+# STAR index (very large, ~30GB)
+star_index/
+
+# scTE index
+*.idx
+
+# Results (may contain large files)
+results/
+figures/
+*.rds
+*.h5ad
+*.h5
+*.loom
+
+# Logs (transient, can be regenerated)
+logs/
+logs_10x/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compressed archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Keep small annotation files (whitelists, etc)
+!annotations/*.txt
+
+# Keep empty directories with .gitkeep
+!**/.gitkeep

@@ -1,0 +1,18 @@
+Based on the paper's methods:
+
+1. Bulk RNA-seq:
+   - SMARTer Stranded Total RNA kit
+   - 100bp paired-end reads
+   - Illumina NovaSeq S4
+   - Expected in SRA: 200bp total (100bp R1 + 100bp R2)
+
+2. Single-nucleus RNA-seq (10x Chromium v3):
+   - 10x Chromium Single Cell 3' v3 platform
+   - 100bp paired-end sequencing
+   - Should have: 28bp (16bp barcode + 12bp UMI) + 91bp cDNA
+   - Expected in SRA: Could be 208bp if both reads combined, OR properly split
+
+3. Single-nucleus ATAC-seq:
+   - 10x Chromium Single Cell ATAC platform
+   - 100bp paired-end sequencing
+   - Different library structure than RNA-seq
