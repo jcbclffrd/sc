@@ -91,3 +91,4 @@ Thumbs.db
 
 # Keep empty directories with .gitkeep
 !**/.gitkeep
+ready_for_alignment.txt
