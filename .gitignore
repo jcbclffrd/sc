@@ -92,3 +92,19 @@ Thumbs.db
 # Keep empty directories with .gitkeep
 !**/.gitkeep
 ready_for_alignment.txt
+CONVERSATION_LOG.md
+morabito_18samples/cellranger_analysis/CONVERSATION_LOG.md
+
+# CellRanger analysis - exclude large files
+morabito_18samples/cellranger_analysis/cellranger-*.tar.gz
+morabito_18samples/cellranger_analysis/cellranger_output/
+morabito_18samples/cellranger_analysis/fastq_cellranger_format/
+morabito_18samples/cellranger_analysis/build.log
+
+# soloTE analysis - exclude output files
+morabito_18samples/soloTE_analysis/soloTE_output/
+morabito_18samples/soloTE_analysis/*.stats
+morabito_18samples/soloTE_analysis/*.log
+morabito_18samples/soloTE_analysis/merged_*/
+morabito_18samples/soloTE_analysis/comparison_*/
+morabito_18samples/soloTE_analysis/SoloTE/
