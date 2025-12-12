@@ -1,0 +1,19 @@
+# Large data files (excluded from git)
+*.h5ad
+*.h5
+
+# Data directories with extracted/filtered samples
+scte_18samples/
+scte_18samples_filtered/
+
+# Large CSV files (gene-level results are too big)
+differential_results/genes_AD_vs_Control_all_cells.csv
+differential_results/*_AD_vs_Control.csv
+
+# Keep small summary files and TE-specific results
+!differential_results/TEs_AD_vs_Control_all_cells.csv
+!differential_results/celltype_summary.csv
+!differential_results/TE_summary.csv
+
+# Figures
+differential_results/figures/

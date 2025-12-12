@@ -213,13 +213,64 @@ sc/
 
 ## Technical Notes
 
-### Quality Control Expectations
-The paper reports **191,890 high-quality nuclei** after QC filtering. Our raw data has **574,298 cells**, which is ~3x more because we haven't applied QC filters yet. Their filters:
+### Understanding "Samples" and Cell Counts
+
+**What is a "Sample"?**
+- **1 Sample = 1 SRR accession = 1 patient = 1 brain tissue piece**
+- Each sample consists of:
+  - 2 FASTQ files (R1: 28bp barcode+UMI, R2: 100bp RNA-seq read)
+  - 1 10x Chromium capture (one microfluidic chip run)
+  - ~3,000-5,000 cells from that capture
+
+**Dataset Summary:**
+- **Total available**: 152 samples (152 different patients)
+- **We processed**: 150 samples = 150 patients × 2 FASTQ files = 300 FASTQ files
+- **Morabito analyzed**: 18 samples (18 patients from the 152 available)
+  - Sample-17, 19, 22, 27, 33, 37, 43, 45, 46, 47, 50, 52, 58, 66, 82, 90, 96, 100
+
+**Cell Count Analysis:**
+
+| Dataset | Samples | Total Cells | Cells/Sample | Mean UMI/Cell |
+|---------|---------|-------------|--------------|---------------|
+| **Our data** | 150 | 574,298 | 3,829 | 3,985 |
+| **Morabito (GEO: GSE174367)** | 18 | 61,770 | 3,432 | 9,681 |
+
+**Key Finding**: The cells per sample are very similar (3,829 vs 3,432)! The 9.3x difference in total cell count is primarily due to **sample selection**, not filtering stringency.
+
+**Why the Discrepancy?**
+1. **Sample selection (18/150 = 12%)** ← Main factor! They used only 18 of 152 available samples
+2. **Slightly stricter filtering** (~10% fewer cells per sample)
+3. **Higher quality threshold** (their mean UMI: 9,681 vs ours: 3,985)
+   - They likely applied higher UMI cutoffs during CellRanger processing
+   - Our data includes more low-quality cells from STARsolo's liberal filtering
+
+**Paper's Reported Numbers:**
+- **191,890 total nuclei** = ~130,000 ATAC-seq + ~61,000 snRNA-seq (not all RNA!)
+- Their snRNA-seq subset: 61,770 cells from 18 samples
+- Cell type distribution: ODC (60%), EX (10%), INH (10%), ASC (8%), MG (7%), OPC (5%), PER.END (1%)
+
+### Quality Control Strategy
+
+**CellRanger vs STARsolo Filtering:**
+- **CellRanger** (Morabito's method): Conservative cell calling, higher quality thresholds
+- **STARsolo** (our method): More liberal, includes lower-quality cells
+- **scTE**: Reads from BAM directly, bypasses STARsolo's `filtered/` matrix
+  - Result: We get ~38% more cells per sample than STARsolo's filtered count
+  - Example: SRR14513977 has 3,345 filtered cells but scTE kept 4,629 cells
+
+**Standard QC Filters** (to match paper):
 - 200-10,000 genes per cell
 - <10% mitochondrial reads
-- Removes low-quality cells, doublets, and dying cells
+- Remove doublets and dying cells
+- UMI threshold: ~7,800+ UMIs to match their median of 6,374
 
-Expected pass rate: **~33%** → ~190,000 cells (matches paper!)
+**Our Current Status:**
+- **Raw cells**: 574,298 (all samples, minimal filtering)
+- **After STARsolo filter**: ~500,000 cells (using `filtered/` barcodes)
+- **After UMI threshold (≥7,847)**: ~71,685 cells
+- **Target**: Match their 18-sample subset quality for comparison
+
+Expected outcome: **We could match their cell quality by applying stricter UMI thresholds**
 
 ### TE Detection Strategy
 - **Multi-mapping reads**: Set to 100 (vs default 10) to capture reads mapping to multiple TE copies
