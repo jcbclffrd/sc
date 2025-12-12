@@ -10,8 +10,8 @@ echo "SOLOTE PARALLEL PROCESSING MONITOR"
 echo "======================================================================"
 echo ""
 
-# Check completed samples
-N_COMPLETED=$(find $OUTPUT_DIR -name "*_TE_counts.mtx" 2>/dev/null | wc -l)
+# Check completed samples (soloTE creates subfamilytes_MATRIX/matrix.mtx)
+N_COMPLETED=$(find $OUTPUT_DIR -name "matrix.mtx" -path "*subfamilytes_MATRIX*" 2>/dev/null | wc -l)
 N_TOTAL=18
 
 echo "✓ Completed: $N_COMPLETED/$N_TOTAL samples"
@@ -43,8 +43,8 @@ fi
 
 # Show recently completed (last 5 minutes)
 echo "Recently completed (last 5 min):"
-find $OUTPUT_DIR -name "*_TE_counts.mtx" -mmin -5 2>/dev/null | while read file; do
-    SAMPLE=$(basename $(dirname $file))
+find $OUTPUT_DIR -name "matrix.mtx" -path "*subfamilytes_MATRIX*" -mmin -5 2>/dev/null | while read file; do
+    SAMPLE=$(echo $file | grep -oP 'SRR\d+' | head -1)
     SIZE=$(ls -lh $file | awk '{print $5}')
     echo "  ✓ $SAMPLE ($SIZE)"
 done

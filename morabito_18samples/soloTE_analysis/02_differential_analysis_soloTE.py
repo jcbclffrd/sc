@@ -71,12 +71,28 @@ for group in groups:
         'pvals_adj': result['pvals_adj'][group]
     })
     
-    # Add TE annotations
-    group_df = group_df.merge(
-        adata.var[['TE_subfamily', 'TE_family', 'TE_class']], 
-        left_on='names', 
-        right_index=True, 
-        how='left'
+    # Add TE subfamily name (same as feature name for soloTE)
+    group_df['TE_subfamily'] = group_df['names']
+    
+    # Try to parse TE family and class from name (optional)
+    # Most TE names follow pattern: L1HS (LINE-1), AluY (Alu), etc.
+    def parse_te_info(te_name):
+        # Simple heuristics for common TE families
+        if te_name.startswith('L1'):
+            return 'LINE-1', 'LINE'
+        elif te_name.startswith('L2'):
+            return 'LINE-2', 'LINE'
+        elif te_name.startswith('Alu'):
+            return 'Alu', 'SINE'
+        elif 'LTR' in te_name or te_name.startswith('MER') or te_name.startswith('MLT'):
+            return 'LTR', 'LTR'
+        elif te_name.startswith('SVA'):
+            return 'SVA', 'Retrotransposon'
+        else:
+            return 'Unknown', 'Unknown'
+    
+    group_df[['TE_family', 'TE_class']] = group_df['names'].apply(
+        lambda x: pd.Series(parse_te_info(x))
     )
     
     de_results.append(group_df)
@@ -140,12 +156,26 @@ for ct in cell_types:
         'pvals_adj': result['pvals_adj']['AD']
     })
     
-    # Add TE annotations
-    ct_df = ct_df.merge(
-        adata_ct.var[['TE_subfamily', 'TE_family', 'TE_class']], 
-        left_on='names',
-        right_index=True,
-        how='left'
+    # Add TE subfamily name
+    ct_df['TE_subfamily'] = ct_df['names']
+    
+    # Parse TE family and class from name
+    def parse_te_info(te_name):
+        if te_name.startswith('L1'):
+            return 'LINE-1', 'LINE'
+        elif te_name.startswith('L2'):
+            return 'LINE-2', 'LINE'
+        elif te_name.startswith('Alu'):
+            return 'Alu', 'SINE'
+        elif 'LTR' in te_name or te_name.startswith('MER') or te_name.startswith('MLT'):
+            return 'LTR', 'LTR'
+        elif te_name.startswith('SVA'):
+            return 'SVA', 'Retrotransposon'
+        else:
+            return 'Unknown', 'Unknown'
+    
+    ct_df[['TE_family', 'TE_class']] = ct_df['names'].apply(
+        lambda x: pd.Series(parse_te_info(x))
     )
     
     # Save

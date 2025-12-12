@@ -58,7 +58,8 @@ print("=" * 70)
 
 # Get TE names from each method
 scte_te_names = set(scte_tes.var_names)
-solote_te_names = set(solote_data.var['TE_subfamily'].values)
+# For soloTE, the var_names ARE the TE subfamily names
+solote_te_names = set(solote_data.var_names)
 
 print(f"\nscTE TEs detected: {len(scte_te_names):,}")
 print(f"SoloTE TEs detected: {len(solote_te_names):,}")
@@ -129,11 +130,9 @@ for te in both:
 
 solote_means = {}
 for te in both:
-    te_rows = solote_data.var['TE_subfamily'] == te
-    if te_rows.sum() > 0:
-        # Get first matching TE (there may be multiple loci for same subfamily)
-        te_idx = np.where(te_rows)[0][0]
-        te_data = solote_data[:, te_idx].X
+    # For soloTE, var_names are the TE names
+    if te in solote_data.var_names:
+        te_data = solote_data[:, te].X
         if hasattr(te_data, 'toarray'):
             te_data = te_data.toarray().flatten()
         else:
@@ -191,7 +190,7 @@ print(f"  SoloTE DE: {len(solote_de):,} TEs")
 scte_de_subset = scte_de[['names', 'logfoldchanges', 'pvals', 'pvals_adj']].copy()
 scte_de_subset.columns = ['TE_name', 'scTE_logFC', 'scTE_pval', 'scTE_padj']
 
-solote_de_subset = solote_de[['TE_subfamily', 'logfoldchanges', 'pvals', 'pvals_adj', 'TE_family', 'TE_class']].copy()
+solote_de_subset = solote_de[['names', 'logfoldchanges', 'pvals', 'pvals_adj', 'TE_family', 'TE_class']].copy()
 solote_de_subset.columns = ['TE_name', 'soloTE_logFC', 'soloTE_pval', 'soloTE_padj', 'TE_family', 'TE_class']
 
 # Merge

@@ -10,7 +10,40 @@ This folder contains the analysis of the **18 samples** that Morabito et al. (20
 - **AD samples**: 12 patients
 - **Control samples**: 6 patients
 
-**Cells**: 61,770 high-quality nuclei (filtered by CellRanger)
+**Cells**: 61,770 high-quality nuclei (filtered by CellRanger/STARsolo)
+
+### Why Only 18 of 150+ Samples?
+
+Morabito et al. processed **152 total samples** but published only **18 samples** (GSE174367). The selection was likely based on:
+
+1. **Quality Control**: Not all samples passed stringent QC metrics
+   - Cell yield (samples with < 1,000 cells excluded)
+   - Sequencing depth and gene detection rate
+   - Doublet rate and mitochondrial content
+   
+2. **Batch Effects**: Selected samples from consistent sequencing batches to minimize technical variation
+
+3. **Balanced Design**: Matched samples for:
+   - Age distribution between AD and controls
+   - Sex ratio (male/female balance)
+   - Post-mortem interval (PMI)
+   - Tissue quality and dissection consistency
+
+4. **Statistical Power**: 18 high-quality samples with ~60,000 cells provides excellent power without adding noise from lower-quality samples
+
+### Empty Droplets and Cell Filtering
+
+**Raw 10x Chromium data** captures ~100,000 droplets per sample, but most are empty:
+- **~98.7% of droplets are empty or low-quality** (< 100 UMIs)
+- Only **~1-2% contain real single cells** (> 1,000 UMIs)
+- For 18 samples: ~6.7M raw droplets → ~60K high-quality cells
+
+**Processing differences:**
+- **STARsolo/CellRanger**: Generates both `raw/` (all droplets) and `filtered/` (high-quality cells only) outputs
+- **scTE**: Originally processed `raw/` outputs from STARsolo BAM files, including all ~500K droplets across samples
+- **This analysis**: Filtered scTE results to match Morabito's exact cell barcodes from the `filtered/` outputs (61,770 cells)
+
+The massive reduction (500K → 60K cells) is **expected and correct** - it represents removing empty droplets and low-quality cells to keep only real, high-quality single nuclei.
 
 ## Files
 

@@ -113,3 +113,8 @@ morabito_18samples/soloTE_analysis/SoloTE/
 bulk_alignment.out
 monitor_scte.sh
 star_bulk_aligned/
+
+# soloTE analysis - data files (large)
+morabito_18samples/soloTE_analysis/merged_*.h5ad
+morabito_18samples/soloTE_analysis/de_analysis.log
+morabito_18samples/soloTE_analysis/comparison.log

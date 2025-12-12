@@ -46,24 +46,25 @@ for idx, row in mapping.iterrows():
     srr = row['srr']
     sample_id = row['sample_id']
     
-    output_dir = f"soloTE_output/{srr}"
+    # SoloTE creates: soloTE_output/SRR/SRR_SoloTE_output/SRR_subfamilytes_MATRIX/
+    output_dir = f"soloTE_output/{srr}/{srr}_SoloTE_output/{srr}_subfamilytes_MATRIX"
     
-    # SoloTE outputs
-    mtx_file = f"{output_dir}/{srr}_TE_counts.mtx"
-    barcode_file = f"{output_dir}/{srr}_barcodes.tsv"
-    feature_file = f"{output_dir}/{srr}_features.tsv"
+    # SoloTE outputs (standard 10x format)
+    mtx_file = f"{output_dir}/matrix.mtx"
+    barcode_file = f"{output_dir}/barcodes.tsv"
+    feature_file = f"{output_dir}/features.tsv"
     
     if not os.path.exists(mtx_file):
-        print(f"✗ {sample_id:12s} ({srr}): NOT FOUND")
+        print(f"✗ {sample_id:12s} ({srr}): NOT FOUND at {mtx_file}")
         continue
     
-    # Load matrix
+    # Load matrix (market matrix format)
     counts = mmread(mtx_file).T.tocsr()  # Transpose to cells x features
     
     # Load barcodes
     barcodes = pd.read_csv(barcode_file, header=None, sep='\t')[0].values
     
-    # Load features
+    # Load features (TE subfamily names)
     features = pd.read_csv(feature_file, header=None, sep='\t')
     if features.shape[1] >= 2:
         feature_names = features[0].values
@@ -72,52 +73,31 @@ for idx, row in mapping.iterrows():
         feature_names = features[0].values
         feature_info = None
     
-    # Create AnnData
+    # Create AnnData with ALL features first
     adata = sc.AnnData(
         X=counts,
         obs=pd.DataFrame(index=barcodes),
         var=pd.DataFrame(index=feature_names)
     )
     
-    # Add feature info if available
-    if feature_info is not None:
-        adata.var['te_info'] = feature_info
+    # Filter to TEs only (soloTE prefixes TEs with "SoloTE|")
+    te_mask = [name.startswith('SoloTE|') for name in adata.var_names]
+    adata = adata[:, te_mask].copy()
     
-    # Extract TE subfamily, family, class from feature names
-    # Format: chr1|11505|11675|L1MC5a:L1:LINE|25.1|-
-    te_annotations = []
-    for feat in feature_names:
-        parts = feat.split('|')
-        if len(parts) >= 4:
-            te_part = parts[3]  # L1MC5a:L1:LINE
-            te_fields = te_part.split(':')
-            if len(te_fields) >= 3:
-                subfamily = te_fields[0]
-                family = te_fields[1]
-                te_class = te_fields[2]
-            else:
-                subfamily = te_part
-                family = 'Unknown'
-                te_class = 'Unknown'
-        else:
-            subfamily = feat
-            family = 'Unknown'
-            te_class = 'Unknown'
-        
-        te_annotations.append({
-            'TE_subfamily': subfamily,
-            'TE_family': family,
-            'TE_class': te_class,
-            'feature_type': 'TE'  # All SoloTE features are TEs
-        })
+    # Strip the "SoloTE|" prefix to get actual TE names
+    adata.var_names = [name.replace('SoloTE|', '') for name in adata.var_names]
+    adata.var_names_make_unique()
     
-    adata.var = pd.DataFrame(te_annotations, index=feature_names)
+    # Note: soloTE features are just TE names (e.g., "L1HS", "AluY")
+    # We don't have detailed family/class annotations like scTE
+    # Mark all as TEs for consistency
+    adata.var['feature_type'] = 'TE'
     
     # Add sample info
     adata.obs['sample_id'] = sample_id
     adata.obs['srr'] = srr
     
-    print(f"✓ {sample_id:12s} ({srr}): {adata.n_obs:>5,} cells × {adata.n_vars:>6,} TEs")
+    print(f"✓ {sample_id:12s} ({srr}): {adata.n_obs:>7,} cells × {adata.n_vars:>5,} TEs")
     adatas.append(adata)
 
 print(f"\nLoaded {len(adatas)}/{len(mapping)} samples")
@@ -186,12 +166,9 @@ adata.obs['n_counts'] = np.array(adata.X.sum(axis=1)).flatten()
 # TEs detected per cell
 adata.obs['n_tes'] = np.array((adata.X > 0).sum(axis=1)).flatten()
 
-# TE family counts
-te_families = adata.var['TE_family'].value_counts()
-print(f"\nTE families detected: {len(te_families)}")
-print("Top 10 TE families:")
-for family, count in te_families.head(10).items():
-    print(f"  {family:15s}: {count:>5,} subfamilies")
+# Note: soloTE subfamilytes output has TE subfamily names only, not family annotations
+# We could parse family from subfamily names if needed, but skipping for now
+print(f"\nTotal TE subfamilies: {adata.n_vars:,}")
 
 print(f"\nQC statistics:")
 print(f"  Mean UMIs/cell: {adata.obs['n_counts'].mean():.0f}")

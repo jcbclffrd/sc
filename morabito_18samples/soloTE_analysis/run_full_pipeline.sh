@@ -9,6 +9,10 @@
 
 set -e
 
+# Change to script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 echo "======================================================================"
 echo "SOLOTE FULL ANALYSIS PIPELINE"
 echo "======================================================================"
@@ -32,12 +36,12 @@ if pgrep -f "run_soloTE_batch.sh" > /dev/null; then
     
     echo "✓ SoloTE batch processing completed!"
 else
-    # Check if SoloTE outputs exist
-    N_COMPLETED=$(find soloTE_output -name "*_TE_counts.mtx" 2>/dev/null | wc -l)
+    # Check if SoloTE outputs exist (soloTE creates subfamilytes_MATRIX/matrix.mtx)
+    N_COMPLETED=$(find soloTE_output -name "matrix.mtx" -path "*subfamilytes_MATRIX*" 2>/dev/null | wc -l)
     
     if [ $N_COMPLETED -eq 0 ]; then
         echo "✗ No SoloTE outputs found"
-        echo "Run: bash run_soloTE_batch.sh first"
+        echo "Run: bash run_soloTE_parallel.sh first"
         exit 1
     elif [ $N_COMPLETED -lt 18 ]; then
         echo "⚠️  Only $N_COMPLETED/18 samples processed"
@@ -85,6 +89,18 @@ fi
 
 echo ""
 echo "======================================================================"
+echo "STEP 5: GENERATING COMPARISON REPORT"
+echo "======================================================================"
+
+python3 04_generate_comparison_report.py
+
+if [ ! -f "COMPARISON_REPORT.md" ]; then
+    echo "✗ Report generation failed"
+    exit 1
+fi
+
+echo ""
+echo "======================================================================"
 echo "✓ FULL PIPELINE COMPLETE!"
 echo "======================================================================"
 echo ""
@@ -94,5 +110,6 @@ echo "  - differential_results_soloTE/"
 echo "  - comparison/00_summary_statistics.csv"
 echo "  - comparison/01_TE_detection_comparison.csv"
 echo "  - comparison/02_expression_comparison.csv"
+echo "  - COMPARISON_REPORT.md ← Ready for PI presentation!"
 echo "  - comparison/03_differential_expression_comparison.csv"
 echo ""

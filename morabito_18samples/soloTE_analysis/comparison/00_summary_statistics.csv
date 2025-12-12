@@ -1,0 +1,5 @@
+Metric,scTE,SoloTE,Overlap
+TEs detected,984,1084,953
+Significant TEs (AD vs Control),374,564,365
+Upregulated in AD,318,468,313
+Downregulated in AD,56,96,51
