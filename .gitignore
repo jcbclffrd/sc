@@ -108,3 +108,8 @@ morabito_18samples/soloTE_analysis/*.log
 morabito_18samples/soloTE_analysis/merged_*/
 morabito_18samples/soloTE_analysis/comparison_*/
 morabito_18samples/soloTE_analysis/SoloTE/
+
+# Temporary files and bulk alignment outputs
+bulk_alignment.out
+monitor_scte.sh
+star_bulk_aligned/
