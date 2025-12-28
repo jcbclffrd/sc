@@ -118,3 +118,12 @@ star_bulk_aligned/
 morabito_18samples/soloTE_analysis/merged_*.h5ad
 morabito_18samples/soloTE_analysis/de_analysis.log
 morabito_18samples/soloTE_analysis/comparison.log
+
+# TEtranscripts bulk RNA-seq count tables (312 files, ~271MB)
+tetranscripts_bulk/*.cntTable
+tetranscripts_bulk/results_backup_*/
+tetranscripts_bulk_all/
+tetranscripts_env/
+
+# CellRanger reference genome (27GB)
+morabito_18samples/cellranger_analysis/reference/
