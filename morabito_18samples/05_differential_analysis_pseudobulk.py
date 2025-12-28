@@ -68,9 +68,8 @@ if missing_packages:
     sys.exit(1)
 
 import os
-
-# Activate pandas conversion
-pandas2ri.activate()
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.conversion import localconverter
 
 print("=" * 70)
 print("PSEUDOBULK DIFFERENTIAL EXPRESSION ANALYSIS: AD vs CONTROL")
@@ -216,8 +215,9 @@ def run_deseq2_pseudobulk(pseudobulk_counts, metadata, condition_col='diagnosis'
     
     # Create DESeq2 dataset
     print(f"\n  Creating DESeq2 dataset...")
-    ro.globalenv['counts_matrix'] = pseudobulk_counts
-    ro.globalenv['metadata'] = metadata
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        ro.globalenv['counts_matrix'] = pseudobulk_counts
+        ro.globalenv['metadata'] = metadata
     
     ro.r(f'''
     # Ensure factor levels are correct
@@ -248,8 +248,8 @@ def run_deseq2_pseudobulk(pseudobulk_counts, metadata, condition_col='diagnosis'
     ''')
     
     # Get results back to Python
-    results_df = ro.r('res')
-    results_df = pandas2ri.rpy2py(results_df)
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        results_df = ro.r('res')
     
     print(f"\n  ✓ DESeq2 analysis complete!")
     print(f"    - Features tested: {len(results_df):,}")
