@@ -29,7 +29,9 @@ sudo apt-get install -y \
     iftop \
     unzip \
     python3 \
-    python3-pip
+    python3-pip \
+    bedtools \
+    subread
 
 # Install SRA Toolkit
 echo "Installing SRA Toolkit..."
@@ -54,17 +56,27 @@ sudo cp STAR /usr/local/bin/
 cd ~
 rm -rf STAR-2.7.11b 2.7.11b.tar.gz
 
+# Install MACS3 (peak caller)
+echo "Installing MACS3..."
+pip3 install macs3
+
 # Verify installations
 echo "Verifying installations..."
 which fasterq-dump
 which STAR
 which samtools
 which pigz
+which macs3
+which featureCounts
+which bedtools
 
 fasterq-dump --version
 STAR --version
 samtools --version
 pigz --version
+macs3 --version
+featureCounts -v 2>&1 | head -2
+bedtools --version
 
 # Clone the sc repository
 echo "Cloning sc repository..."
@@ -82,8 +94,11 @@ fi
 echo "Creating directories..."
 mkdir -p ~/sc/sra_downloads/ATAC-seq
 mkdir -p ~/sc/atacseq_aligned
+mkdir -p ~/sc/atacseq_peaks
+mkdir -p ~/sc/atacseq_te_counts
 mkdir -p ~/sc/logs_atacseq
 mkdir -p ~/sc/star_index
+mkdir -p ~/sc/annotations
 
 # Configure git
 git config --global user.email "jcbclffrd@users.noreply.github.com"
@@ -105,7 +120,8 @@ echo "=========================================="
 echo ""
 echo "Next steps:"
 echo "1. Upload genome index: rsync -avz -e 'ssh -i ~/.ssh/awsWebsite.pem' ~/sc/star_index/ ubuntu@\$AWS_IP:~/sc/star_index/"
-echo "2. Or rebuild genome index: cd ~/sc && ./scripts/build_star_index_aws.sh"
-echo "3. Run alignment: cd ~/sc && nohup bash scripts/align_atacseq_aws.sh > logs_atacseq/aws_alignment.log 2>&1 &"
-echo "4. Monitor: tail -f logs_atacseq/aws_alignment.log"
+echo "2. Upload TE annotations: rsync -avz -e 'ssh -i ~/.ssh/awsWebsite.pem' ~/sc/annotations/hg38_rmsk_TE.gtf ubuntu@\$AWS_IP:~/sc/annotations/"
+echo "3. Or rebuild genome index: cd ~/sc && ./scripts/build_star_index_aws.sh"
+echo "4. Run full pipeline: cd ~/sc && nohup bash scripts/atacseq_full_pipeline_aws.sh > logs_atacseq/aws_pipeline.log 2>&1 &"
+echo "5. Monitor: tail -f logs_atacseq/aws_pipeline.log"
 echo ""

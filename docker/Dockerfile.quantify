@@ -1,0 +1,16 @@
+# TE quantification module: featureCounts
+FROM atacseq-base:latest
+
+COPY scripts/count_tes.sh /usr/local/bin/count_tes.sh
+RUN chmod +x /usr/local/bin/count_tes.sh
+
+# Expected mounts:
+# -v /path/to/bams:/data:ro            (BAM files)
+# -v /path/to/annotations:/annotations:ro  (TE GTF)
+# -v /path/to/counts:/output           (Count matrix)
+
+# Environment variables:
+# TE_GTF - Path to TE GTF (default: /annotations/hg38_rmsk_TE.gtf)
+# THREADS - number of threads (default: 8)
+
+ENTRYPOINT ["/usr/local/bin/count_tes.sh"]

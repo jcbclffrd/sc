@@ -1,0 +1,15 @@
+# Peak calling module: MACS3
+FROM atacseq-base:latest
+
+COPY scripts/call_peaks.sh /usr/local/bin/call_peaks.sh
+RUN chmod +x /usr/local/bin/call_peaks.sh
+
+# Expected mounts:
+# -v /path/to/bams:/data:ro            (BAM files)
+# -v /path/to/peaks:/output            (Peak files)
+
+# Environment variables:
+# SAMPLE_ID - Sample name
+# BAM_FILE - Path to BAM file (default: /data/${SAMPLE_ID}.bam)
+
+ENTRYPOINT ["/usr/local/bin/call_peaks.sh"]

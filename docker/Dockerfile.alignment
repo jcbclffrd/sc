@@ -1,0 +1,17 @@
+# Alignment module: SRA download + STAR alignment
+FROM atacseq-base:latest
+
+COPY scripts/align_sample.sh /usr/local/bin/align_sample.sh
+RUN chmod +x /usr/local/bin/align_sample.sh
+
+# Expected mounts:
+# -v /path/to/genome:/genome:ro         (STAR index)
+# -v /path/to/output:/output            (BAM files)
+# -v /path/to/fastqs:/data              (temp FASTQ storage)
+
+# Environment variables:
+# SAMPLE_ID - SRR accession to download and align
+# THREADS - number of threads (default: 4)
+# GENOME_DIR - path to STAR index (default: /genome)
+
+ENTRYPOINT ["/usr/local/bin/align_sample.sh"]

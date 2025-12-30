@@ -1,0 +1,19 @@
+# Differential analysis module: DESeq2
+FROM atacseq-base:latest
+
+COPY scripts/deseq2_analysis.R /usr/local/bin/deseq2_analysis.R
+RUN chmod +x /usr/local/bin/deseq2_analysis.R
+
+# Expected mounts:
+# -v /path/to/counts:/data:ro          (Count matrix)
+# -v /path/to/metadata:/metadata:ro    (Sample metadata CSV)
+# -v /path/to/results:/output          (DESeq2 results)
+
+# Environment variables:
+# COUNT_MATRIX - Path to count matrix (default: /data/te_counts_matrix.tsv)
+# METADATA - Path to metadata CSV (default: /metadata/samples.csv)
+# CONDITION_COL - Column name for condition (default: "condition")
+# CONTROL - Control group name (default: "Control")
+# TREATMENT - Treatment group name (default: "AD")
+
+ENTRYPOINT ["Rscript", "/usr/local/bin/deseq2_analysis.R"]

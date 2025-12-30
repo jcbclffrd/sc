@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Step 1: Alignment (run multiple instances in parallel)
+  alignment:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.alignment
+    image: atacseq-alignment:latest
+    volumes:
+      - ./star_index:/genome:ro
+      - ./atacseq_aligned:/output
+      - ./sra_downloads/ATAC-seq:/data
+    environment:
+      - SAMPLE_ID=${SAMPLE_ID}
+      - THREADS=4
+      - GENOME_DIR=/genome
+    cpus: 4
+    mem_limit: 16g
+
+  # Step 2: Peak calling
+  peaks:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.peaks
+    image: atacseq-peaks:latest
+    volumes:
+      - ./atacseq_aligned:/data:ro
+      - ./atacseq_peaks:/output
+    environment:
+      - SAMPLE_ID=${SAMPLE_ID}
+    cpus: 2
+    mem_limit: 4g
+
+  # Step 3: TE quantification
+  quantify:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.quantify
+    image: atacseq-quantify:latest
+    volumes:
+      - ./atacseq_aligned:/data:ro
+      - ./annotations:/annotations:ro
+      - ./atacseq_te_counts:/output
+    environment:
+      - TE_GTF=/annotations/hg38_rmsk_TE.gtf
+      - THREADS=8
+    cpus: 8
+    mem_limit: 16g
+
+  # Step 4: DESeq2 analysis
+  deseq2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.deseq2
+    image: atacseq-deseq2:latest
+    volumes:
+      - ./atacseq_te_counts:/data:ro
+      - ./metadata:/metadata:ro
+      - ./deseq2_results:/output
+    environment:
+      - COUNT_MATRIX=/data/te_counts_matrix.tsv
+      - METADATA=/metadata/atacseq_metadata.csv
+      - CONDITION_COL=condition
+      - CONTROL=Control
+      - TREATMENT=AD
+    cpus: 4
+    mem_limit: 16g
