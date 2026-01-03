@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+SAMPLE=SRR14514130
+BAM=~/sc/atacseq_aligned/${SAMPLE}/star_multimapper_final.bam
+TE_GTF=~/sc/annotations/hg38_rmsk_TE.gtf
+OUTPUT_DIR=~/sc/atacseq_te_counts/${SAMPLE}_scTEATAC
+THREADS=8
+
+export PATH=~/.local/bin:$PATH
+
+mkdir -p ${OUTPUT_DIR}
+cd ${OUTPUT_DIR}
+
+echo "[1] Converting GTF to BED format..."
+awk 'BEGIN{OFS="\t"} !/^#/ {print $1, $4-1, $5, $10, ".", $7}' ${TE_GTF} | sed 's/[\";\]//g' > te_annotation.bed
+
+echo "[2] Building scTEATAC index..."
+scTEATAC_build -g te_annotation.bed -o hg38_te
+
+echo "[3] Running scTEATAC on BAM with CB tags..."
+scTEATAC -i ${BAM} -o ${SAMPLE}_scTEATAC -x hg38_te.idx -p ${THREADS} -CB True --hdf5 True
+
+echo "Done! Output: ${OUTPUT_DIR}/${SAMPLE}_scTEATAC.h5ad"
+ls -lh ${SAMPLE}_scTEATAC*
