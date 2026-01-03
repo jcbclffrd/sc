@@ -140,12 +140,13 @@ for SAMPLE in "${SAMPLES[@]}"; do
             echo "[${SAMPLE}] Step 3/4: Running scTEATAC TE quantification..."
             cd ${SAMPLE_OUTPUT_DIR}
             
+            # Redirect stderr to /dev/null to suppress bamToBed paired-read warnings
             scTEATAC -i ${FINAL_BAM} \
                 -o ${SAMPLE}_scTEATAC \
                 -x ${INDEX_DIR}/hg38_te.idx \
                 -p ${THREADS} \
                 -CB True \
-                --hdf5 True
+                --hdf5 True 2>/dev/null
             
             echo "✓ scTEATAC quantification complete"
         else

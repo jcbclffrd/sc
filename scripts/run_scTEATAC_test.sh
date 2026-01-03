@@ -19,7 +19,8 @@ echo "[2] Building scTEATAC index..."
 scTEATAC_build -g te_annotation.bed -o hg38_te
 
 echo "[3] Running scTEATAC on BAM with CB tags..."
-scTEATAC -i ${BAM} -o ${SAMPLE}_scTEATAC -x hg38_te.idx -p ${THREADS} -CB True --hdf5 True
+# Redirect stderr to /dev/null to suppress bamToBed paired-read warnings (they fill up logs)
+scTEATAC -i ${BAM} -o ${SAMPLE}_scTEATAC -x hg38_te.idx -p ${THREADS} -CB True --hdf5 True 2>/dev/null
 
 echo "Done! Output: ${OUTPUT_DIR}/${SAMPLE}_scTEATAC.h5ad"
 ls -lh ${SAMPLE}_scTEATAC*
