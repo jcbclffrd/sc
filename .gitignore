@@ -1,3 +1,8 @@
+# AWS credentials and SSH keys
+*.pem
+*.key
+.aws_instance_info
+
 # Raw sequencing data (large FASTQ files)
 sra_downloads/
 *.fastq
@@ -18,12 +23,16 @@ annotations/*.gtf
 # Alignment outputs (large BAM/SAM files)
 aligned_bams/
 starsolo_aligned/
+atacseq_aligned/
+atacseq_multimapper_output/
 *.bam
 *.bam.bai
 *.sam
 
 # scTE outputs (count matrices - can be large)
 scTE_output/
+atacseq_te_counts/
+test_te_counts/
 analysis/
 
 # STAR index (very large, ~30GB)
@@ -43,6 +52,7 @@ figures/
 # Logs (transient, can be regenerated)
 logs/
 logs_10x/
+logs_atacseq/
 *.log
 
 # Temporary files
@@ -50,6 +60,7 @@ logs_10x/
 *.temp
 tmp/
 temp/
+*.patch
 
 # Python
 __pycache__/
@@ -127,3 +138,7 @@ tetranscripts_env/
 
 # CellRanger reference genome (27GB)
 morabito_18samples/cellranger_analysis/reference/
+
+# CellRanger ATAC output (large)
+cellranger_atac_output/
+cellranger_references/
