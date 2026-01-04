@@ -2,10 +2,11 @@
 set -e
 
 SAMPLE=SRR14514130
-BAM=~/sc/atacseq_aligned/${SAMPLE}/star_multimapper_final.bam
+#BAM=~/sc/atacseq_aligned/${SAMPLE}/star_multimapper_final.bam
+BAM=~/sc/cellranger_atac_output/${SAMPLE}/outs/possorted_bam.bam
 TE_GTF=~/sc/annotations/hg38_rmsk_TE.gtf
-OUTPUT_DIR=~/sc/atacseq_te_counts/${SAMPLE}_scTEATAC
-THREADS=8
+OUTPUT_DIR=~/sc/atacseq_te_counts/${SAMPLE}_scTEATAC_cellranger
+THREADS=16
 
 export PATH=~/.local/bin:$PATH
 
